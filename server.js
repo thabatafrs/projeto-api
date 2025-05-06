@@ -13,8 +13,7 @@ app.post("/usuarios", async (req, res) => {
   await prisma.user.create({
     data: {
       email: req.body.email,
-      name: req.body.name,
-      age: req.body.age,
+      senha: req.body.senha,
     },
   });
 
@@ -28,8 +27,7 @@ app.put("/usuarios/:id", async (req, res) => {
     },
     data: {
       email: req.body.email,
-      name: req.body.name,
-      age: req.body.age,
+      senha: req.body.senha,
     },
   });
 
@@ -45,20 +43,27 @@ app.delete("/usuarios/:id", async (req, res) => {
 });
 
 app.get("/usuarios", async (req, res) => {
-  console.log(req);
-  let users = [];
-  if (req.query) {
-    users = await prisma.user.findMany({
-      where: {
-        name: req.query.name,
-        age: req.query.age,
-        email: req.query.email,
-      },
-    });
-  } else {
-    const users = await prisma.user.findMany();
+  try {
+    const { email, senha } = req.query;
+
+    let users;
+
+    if (email && senha) {
+      users = await prisma.user.findMany({
+        where: {
+          email: String(email),
+          senha: String(senha),
+        },
+      });
+    } else {
+      users = await prisma.user.findMany();
+    }
+
+    res.status(200).json(users);
+  } catch (err) {
+    console.error("Erro ao buscar usuários:", err);
+    res.status(500).json({ error: "Erro ao buscar usuários" });
   }
-  res.status(200).json(users);
 });
 
 app.listen(3000);
