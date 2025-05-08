@@ -13,6 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// LOGIN E CADASTRO
 app.post("/usuarios", async (req, res) => {
   await prisma.user.create({
     data: {
@@ -42,28 +43,6 @@ app.post("/login", async (req, res) => {
   res.json({ token });
 });
 
-// app.put("/usuarios/:id", async (req, res) => {
-//   await prisma.user.update({
-//     where: {
-//       id: req.params.id,
-//     },
-//     data: {
-//       email: req.body.email,
-//       senha: req.body.senha,
-//     },
-//   });
-
-//   res.status(201).json(req.body);
-// });
-
-// app.delete("/usuarios/:id", async (req, res) => {
-//   await prisma.user.delete({
-//     where: { id: req.params.id },
-//   });
-
-//   res.status(200).json({ message: "deletado com sucesso" });
-// });
-
 app.get("/usuarios", autenticarToken, async (req, res) => {
   try {
     const { email, senha } = req.query;
@@ -85,6 +64,27 @@ app.get("/usuarios", autenticarToken, async (req, res) => {
   } catch (err) {
     console.error("Erro ao buscar usuários:", err);
     res.status(500).json({ error: "Erro ao buscar usuários" });
+  }
+});
+
+// EVENTO
+app.post("/eventos", autenticarToken, async (req, res) => {
+  try {
+    const { nome, data, horario } = req.body;
+
+    const NovoEvento = await prisma.evento.create({
+      data: {
+        nome,
+        data: new Date(data),
+        horario,
+        userId: req.usuario.id,
+      },
+    });
+
+    res.status(201).json(NovoEvento);
+  } catch (error) {
+    console.error("Erro ao criar evento:", error);
+    res.status(500).json({ error: "Erro ao criar evento" });
   }
 });
 
