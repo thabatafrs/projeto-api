@@ -88,23 +88,28 @@ app.post("/eventos", autenticarToken, async (req, res) => {
   }
 });
 
-app.get('/eventos/:userId', async (req, res) => {
+app.get("/eventos/:userId", async (req, res) => {
   const userId = req.params.userId;
   try {
     const eventos = await prisma.evento.findMany({
       where: {
         userId: userId,
       },
+      orderBy: {
+        horario: "asc",
+      },
     });
 
     if (!eventos || eventos.length === 0) {
-      return res.status(404).json({ message: 'Eventos não encontrados' });
+      return res.status(404).json({ message: "Eventos não encontrados" });
     }
 
     res.json(eventos);
   } catch (error) {
     console.error("Erro ao buscar eventos:", error);
-    res.status(500).json({ message: 'Erro ao buscar eventos', error: error.message });
+    res
+      .status(500)
+      .json({ message: "Erro ao buscar eventos", error: error.message });
   }
 });
 
