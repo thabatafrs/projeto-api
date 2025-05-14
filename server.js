@@ -113,4 +113,41 @@ app.get("/eventos/:userId", async (req, res) => {
   }
 });
 
+app.put("/eventos/:id", async (req, res) => {
+  const { id } = req.params;
+  const { nome, horario } = req.body;
+
+  if (!nome || !horario) {
+    return res.status(400).json({ message: "Nome e horário são obrigatórios" });
+  }
+
+  try {
+    const eventoAtualizado = await prisma.evento.update({
+      where: { id },
+      data: {
+        nome,
+        horario,
+      },
+    });
+
+    return res.json(eventoAtualizado);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Erro ao atualizar o evento", error });
+  }
+});
+
+// Excluir evento
+app.delete("/eventos/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await prisma.evento.delete({ where: { id } });
+    res.json({ message: "Evento excluído com sucesso!" });
+  } catch (err) {
+    res.status(500).json({ message: "Erro ao excluir evento." });
+  }
+});
+
 app.listen(3000);
