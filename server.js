@@ -88,32 +88,18 @@ app.post("/eventos", autenticarToken, async (req, res) => {
   }
 });
 
-app.get("/eventos/:userId", async (req, res) => {
-  const userId = req.params.userId;
-  try {
-    const eventos = await prisma.evento.findMany({
-      where: {
-        userId: userId,
-      },
-      orderBy: {
-        horario: "asc",
-      },
-    });
+app.get("/eventos", autenticarToken, async (req, res) => {
+  const userId = req.usuario.id;
 
-    if (!eventos || eventos.length === 0) {
-      return res.status(404).json({ message: "Eventos não encontrados" });
-    }
+  const eventos = await prisma.evento.findMany({
+    where: { userId },
+    orderBy: { horario: "asc" },
+  });
 
-    res.json(eventos);
-  } catch (error) {
-    console.error("Erro ao buscar eventos:", error);
-    res
-      .status(500)
-      .json({ message: "Erro ao buscar eventos", error: error.message });
-  }
+  res.json(eventos);
 });
 
-app.put("/eventos/:id", async (req, res) => {
+app.put("/eventos/:id", autenticarToken, async (req, res) => {
   const { id } = req.params;
   const { nome, horario } = req.body;
 
@@ -139,7 +125,7 @@ app.put("/eventos/:id", async (req, res) => {
 });
 
 // Excluir evento
-app.delete("/eventos/:id", async (req, res) => {
+app.delete("/eventos/:id", autenticarToken, async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -149,5 +135,25 @@ app.delete("/eventos/:id", async (req, res) => {
     res.status(500).json({ message: "Erro ao excluir evento." });
   }
 });
+
+// HABITO
+// app.create("/habito", autenticarToken, async (req, res) => {
+//   try {
+//     const { nome, dias } = req.body;
+
+//     const NovoHabito = await prisma.habito.create({
+//       data: {
+//         nome,
+//         dias,
+//         userId: req.usuario.id, // vindo do token
+//       },
+//     });
+
+//     res.status(201).json(NovoHabito);
+//   } catch (error) {
+//     console.error("Erro ao criar hábito:", error);
+//     res.status(500).json({ mensagem: "Erro ao criar hábito" });
+//   }
+// });
 
 app.listen(3000);
