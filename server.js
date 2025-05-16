@@ -156,4 +156,12 @@ app.post("/habito", autenticarToken, async (req, res) => {
   }
 });
 
+app.get("/habito", autenticarToken, async (req, res) => {
+  const userId = req.usuario.id;
+
+  const habito = await prisma.habito.findMany({ where: { userId } });
+
+  res.json(habito);
+});
+
 app.listen(3000);
