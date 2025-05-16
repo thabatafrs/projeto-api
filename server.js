@@ -137,23 +137,23 @@ app.delete("/eventos/:id", autenticarToken, async (req, res) => {
 });
 
 // HABITO
-// app.create("/habito", autenticarToken, async (req, res) => {
-//   try {
-//     const { nome, dias } = req.body;
+app.post("/habito", autenticarToken, async (req, res) => {
+  try {
+    const { nome, dias } = req.body;
 
-//     const NovoHabito = await prisma.habito.create({
-//       data: {
-//         nome,
-//         dias,
-//         userId: req.usuario.id, // vindo do token
-//       },
-//     });
+    const NovoHabito = await prisma.habito.create({
+      data: {
+        nome,
+        dias,
+        userId: req.usuario.id, // vindo do token
+      },
+    });
 
-//     res.status(201).json(NovoHabito);
-//   } catch (error) {
-//     console.error("Erro ao criar hábito:", error);
-//     res.status(500).json({ mensagem: "Erro ao criar hábito" });
-//   }
-// });
+    res.status(201).json(NovoHabito);
+  } catch (error) {
+    console.error("Erro ao criar hábito:", error);
+    res.status(500).json({ mensagem: "Erro ao criar hábito" });
+  }
+});
 
 app.listen(3000);
