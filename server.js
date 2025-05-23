@@ -164,4 +164,39 @@ app.get("/habito", autenticarToken, async (req, res) => {
   res.json(habito);
 });
 
+app.put("/habito/:id", autenticarToken, async (req, res) => {
+  const { id } = req.params;
+  const { nome, dias } = req.body;
+
+  if (!nome || !dias) {
+    return res
+      .status(400)
+      .json({ message: "Nome e dias da semana são obrigatórios" });
+  }
+
+  try {
+    const habitoAtualizado = await prisma.update({
+      where: { id },
+      data: { nome, dias },
+    });
+
+    return res.status(200).json(habitoAtualizado);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Erro ao atualizar o evento", error });
+  }
+});
+
+app.delete("/habito/:id", autenticarToken, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await prisma.delete({ where: { id } });
+    res.json({ message: "Hábito excluído com sucesso!" });
+  } catch (error) {
+    res.status(500).json({ message: "Erro ao excluir hábito" });
+  }
+});
+
 app.listen(3000);
