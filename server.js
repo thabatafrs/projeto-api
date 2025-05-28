@@ -175,7 +175,7 @@ app.put("/habito/:id", autenticarToken, async (req, res) => {
   }
 
   try {
-    const habitoAtualizado = await prisma.update({
+    const habitoAtualizado = await prisma.habito.update({
       where: { id },
       data: { nome, dias },
     });
@@ -192,7 +192,7 @@ app.delete("/habito/:id", autenticarToken, async (req, res) => {
   const { id } = req.params;
 
   try {
-    await prisma.delete({ where: { id } });
+    await prisma.habito.delete({ where: { id } });
     res.json({ message: "Hábito excluído com sucesso!" });
   } catch (error) {
     res.status(500).json({ message: "Erro ao excluir hábito" });
