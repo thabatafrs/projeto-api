@@ -199,4 +199,79 @@ app.delete("/habito/:id", autenticarToken, async (req, res) => {
   }
 });
 
+app.post("/habitoRegistro", autenticarToken, async (req, res) => {
+  const { habitoId, data } = req.body;
+
+  const registroExistente = await prisma.habitoRegistro.findFirst({
+    where: {
+      habitoId,
+      data: new Date(data),
+    },
+  });
+
+  if (registroExistente) {
+    await prisma.habitoRegistro.delete({
+      where: { id: registroExistente.id },
+    });
+
+    return res.json(null); // indica que foi desmarcado
+  } else {
+    const novoRegistro = await prisma.habitoRegistro.create({
+      data: {
+        habitoId,
+        data: new Date(data),
+      },
+    });
+
+    return res.json(novoRegistro); // indica que foi marcado
+  }
+});
+
+app.delete("/habitoRegistro", autenticarToken, async (req, res) => {
+  const { habitoId, data } = req.body;
+
+  try {
+    const registro = await prisma.habitoRegistro.findFirst({
+      where: {
+        habitoId,
+        data: new Date(data),
+      },
+    });
+
+    if (!registro) {
+      return res.status(404).json({ message: "Registro não encontrado" });
+    }
+
+    await prisma.habitoRegistro.delete({
+      where: { id: registro.id },
+    });
+
+    res.json({ message: "Registro removido com sucesso" });
+  } catch (error) {
+    console.error("Erro ao deletar registro:", error);
+    res.status(500).json({ message: "Erro ao deletar registro" });
+  }
+});
+
+// Exemplo com Express + Prisma
+app.get("/habitoRegistro", autenticarToken, async (req, res) => {
+  const { dataInicio, dataFim } = req.query;
+
+  try {
+    const registros = await prisma.habitoRegistro.findMany({
+      where: {
+        data: {
+          gte: new Date(dataInicio),
+          lte: new Date(dataFim),
+        },
+      },
+    });
+
+    res.json(registros);
+  } catch (error) {
+    console.error("Erro ao buscar registros:", error);
+    res.status(500).json({ message: "Erro ao buscar registros" });
+  }
+});
+
 app.listen(3000);
